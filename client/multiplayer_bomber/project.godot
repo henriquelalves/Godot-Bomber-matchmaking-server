@@ -16,6 +16,7 @@ run/main_scene="res://lobby.tscn"
 [autoload]
 
 gamestate="*res://gamestate.gd"
+servertcp="*res://servertcp.gd"
 
 [gdnative]
 
