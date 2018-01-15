@@ -71,3 +71,7 @@ func refresh_lobby():
 
 func _on_start_pressed():
 	gamestate.begin_game()
+
+
+func _on_search_pressed():
+	servertcp.start_connection()
