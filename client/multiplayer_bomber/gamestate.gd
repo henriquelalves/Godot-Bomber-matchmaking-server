@@ -1,16 +1,16 @@
 extends Node
 
 # Default game port
-const DEFAULT_PORT = 10567
+const DEFAULT_PORT = 3457
 
 # Max number of players
 const MAX_PEERS = 12
 
 # Name for my player
-var player_name = "The Warrior"
+onready var player_name = "Godotchan"
 
 # Names for remote players in id:name format
-var players = {}
+onready var players = {}
 
 # Signals to let lobby GUI know what's going on
 signal player_list_changed()
@@ -42,6 +42,7 @@ func _player_disconnected(id):
 func _connected_ok():
 	# Registration of a client beings here, tell everyone that we are here
 	rpc("register_player", get_tree().get_network_unique_id(), player_name)
+	rpc("begin_game")
 	emit_signal("connection_succeeded")
 
 # Callback from SceneTree, only for clients (not server)
@@ -130,10 +131,10 @@ func host_game(name):
 	host.create_server(DEFAULT_PORT, MAX_PEERS)
 	get_tree().set_network_peer(host)
 
-func join_game(ip, name):
+func join_game(ip, name, port = DEFAULT_PORT):
 	player_name = name
 	var host = NetworkedMultiplayerENet.new()
-	host.create_client(ip, DEFAULT_PORT)
+	host.create_client(ip, port)
 	get_tree().set_network_peer(host)
 
 func get_player_list():
@@ -142,7 +143,7 @@ func get_player_list():
 func get_player_name():
 	return player_name
 
-func begin_game():
+remote func begin_game():
 	assert(get_tree().is_network_server())
 
 	# Create a dictionary with peer id and respective spawn points, could be improved by randomizing
@@ -168,9 +169,9 @@ func end_game():
 	get_tree().set_network_peer(null) # End networking
 
 func _ready():
-#	get_tree().connect("network_peer_connected", self, "_player_connected")
-#	get_tree().connect("network_peer_disconnected", self,"_player_disconnected")
-#	get_tree().connect("connected_to_server", self, "_connected_ok")
-#	get_tree().connect("connection_failed", self, "_connected_fail")
-#	get_tree().connect("server_disconnected", self, "_server_disconnected")
+	get_tree().connect("network_peer_connected", self, "_player_connected")
+	get_tree().connect("network_peer_disconnected", self,"_player_disconnected")
+	get_tree().connect("connected_to_server", self, "_connected_ok")
+	get_tree().connect("connection_failed", self, "_connected_fail")
+	get_tree().connect("server_disconnected", self, "_server_disconnected")
 	pass

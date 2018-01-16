@@ -1,6 +1,8 @@
 # (WIP) Godot-Bomber-matchmaking-server
 A simple nodejs server to create matches between random players for Godot Bomber demo (PoC).
 
+Inspired by Godot TCP demo made by stisa: https://github.com/stisa/godot-tcp-example.
+
 ## Lan VS Online
 The original `multiplayer bomber` demo  (available on [Godot demo repository](https://github.com/godotengine/godot-demo-projects)) is very useful in showcasing how the Master-Slave network model works in Godot; but in a commercial game, finding your device Global IP is usually too much of a hassle to connect to other players - and even worse, if you are connected to a LAN (which certainly is the common case), you'd have to set Port Forwarding for your machine first before hosting a game. Those are steps that normally you'd want the players to avoid as the game's developer. The solution is creating a simple Server with a fixed IP that works as the "Matchmaker", handshaking pairs of players before starting a match. The technique used is called `Network Address Translator Hole-punching`.
 

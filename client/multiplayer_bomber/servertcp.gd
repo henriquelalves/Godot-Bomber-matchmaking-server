@@ -1,9 +1,7 @@
 extends Node
 
-const server_ip = "40.121.198.16"
+const server_ip = "40.121.198.16" # Change this to your server IP
 const server_port = 3456
-
-const game_port = 3457
 
 onready var server_connection = StreamPeerTCP.new()
 onready var server_connection_status = -1
@@ -16,6 +14,10 @@ onready var other_private_address = ""
 onready var other_remote_port = 0
 onready var other_name = ""
 onready var strLength = 0
+
+onready var is_connecting_remote = true
+
+signal finished_server_tcp
 
 func connection_status_change(new_status):
 	server_connection_status = new_status
@@ -47,4 +49,9 @@ func _process(delta):
 	if (server_connection.is_connected_to_host() and server_connection.get_available_bytes() == 0 and packets_arrived):
 		packets_arrived = false
 		printt(other_remote_address, other_private_address, other_remote_port, other_name)
-		
+		emit_signal("finished_server_tcp")
+		server_connection.disconnect_from_host()
+		set_process(false)
+
+func _ready():
+	gamestate.connect("connection_failed", self, "on_join_failed")
