@@ -63,7 +63,7 @@ function check_match() {
 		send_var(player_queue[1][0].remotePort, player_queue[0][0]); // Send remote PORT
 		send_var(player_queue[1][2], player_queue[0][0]); // Send private IP
 
-		player_queue = player_queue.splice(0, 2);
+		player_queue.splice(0, 2);
 	}
 }
 
