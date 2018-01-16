@@ -42,7 +42,7 @@ func _process(delta):
 		other_remote_port = server_connection.get_u32()
 		strLength = server_connection.get_u32()
 		other_private_address = server_connection.get_string(strLength)
-	if (server_connection.get_available_bytes() == 0 and packets_arrived):
+	if (server_connection.is_connected_to_host() and server_connection.get_available_bytes() == 0 and packets_arrived):
 		packets_arrived = false
 		printt(other_remote_address, other_private_address, other_remote_port, other_name)
 		
