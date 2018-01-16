@@ -10,6 +10,7 @@ onready var server_connection_status = -1
 onready var player_name = "Godotchan"
 onready var packets_arrived = false
 
+onready var is_master = 0
 onready var other_remote_address = ""
 onready var other_private_address = ""
 onready var other_remote_port = 0
@@ -35,6 +36,7 @@ func _process(delta):
 		connection_status_change(server_connection.get_status())
 	if (server_connection.is_connected_to_host() and server_connection.get_available_bytes() > 0 and not packets_arrived):
 		packets_arrived = true
+		is_master = server_connection.get_u32()
 		strLength = server_connection.get_u32()
 		other_name = server_connection.get_string(strLength)
 		strLength = server_connection.get_u32()
