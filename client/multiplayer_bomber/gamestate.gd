@@ -132,6 +132,7 @@ func host_game(name):
 	get_tree().set_network_peer(host)
 
 func join_game(ip, name, port = DEFAULT_PORT):
+	printt(ip, name, port)
 	player_name = name
 	var host = NetworkedMultiplayerENet.new()
 	host.create_client(ip, port)

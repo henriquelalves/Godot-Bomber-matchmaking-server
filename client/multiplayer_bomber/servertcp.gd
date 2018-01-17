@@ -54,4 +54,5 @@ func _process(delta):
 		set_process(false)
 
 func _ready():
-	gamestate.connect("connection_failed", self, "on_join_failed")
+#	gamestate.connect("connection_failed", self, "on_join_failed")
+	pass
