@@ -12,6 +12,7 @@ func _ready():
 	gamestate.connect("game_ended", self, "_on_game_ended")
 	gamestate.connect("game_error", self, "_on_game_error")
 	servertcp.connect("finished_server_tcp", self, "_on_servertcp_finished")
+	set_process(false)
 
 func _process(delta):
 	player_tcp_tick += delta
@@ -34,7 +35,7 @@ func _process(delta):
 
 func _on_servertcp_finished():
 	# try stabilishing a tcp connection with other player using remote_address; if it doesnt work,
-	# players are probably in the same LAN
+	# players are probably in the same LAN without hairpinning
 	player_tcp.connect_to_host(servertcp.other_remote_address, servertcp.other_remote_port)
 	player_tcp_tick = 0
 	$connect/error_label.text = "Connecting to player..."
