@@ -53,11 +53,13 @@ function check_match() {
 	if (player_queue.length >= 2) {
 		console.log("Match found!");
 
+		send_var(1, player_queue[1][0]); // Master
 		send_var(player_queue[0][1], player_queue[1][0]); // Send name
 		send_var(player_queue[0][0].remoteAddress, player_queue[1][0]); // Send remote IP
 		send_var(player_queue[0][0].remotePort, player_queue[1][0]); // Send remote PORT
 		send_var(player_queue[0][2], player_queue[1][0]); // Send private IP
 
+		send_var(0, player_queue[0][0]); // Slave
 		send_var(player_queue[1][1], player_queue[0][0]); // Send name
 		send_var(player_queue[1][0].remoteAddress, player_queue[0][0]); // Send remote IP
 		send_var(player_queue[1][0].remotePort, player_queue[0][0]); // Send remote PORT
