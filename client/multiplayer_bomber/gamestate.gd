@@ -1,7 +1,7 @@
 extends Node
 
 # Default game port
-const DEFAULT_PORT = 3457
+const DEFAULT_PORT = 3456
 
 # Max number of players
 const MAX_PEERS = 12

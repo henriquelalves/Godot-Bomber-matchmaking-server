@@ -1,62 +1,75 @@
 extends Control
 
 onready var connecting_remote = true # If remote address fail, try private (other player may be on same lan)
-onready var player_tcp = StreamPeerTCP.new()
-onready var player_tcp_tick = 0
+
+onready var player_udp = PacketPeerUDP.new()
+onready var connecting_to_player = false
+onready var player_ping_tick = 0.0
 
 func _ready():
 	# Called every time the node is added to the scene.
 	gamestate.connect("connection_failed", self, "_on_connection_failed")
 	gamestate.connect("connection_succeeded", self, "_on_connection_success")
-#	gamestate.connect("player_list_changed", self, "refresh_lobby")
 	gamestate.connect("game_ended", self, "_on_game_ended")
 	gamestate.connect("game_error", self, "_on_game_error")
-	servertcp.connect("finished_server_tcp", self, "_on_servertcp_finished")
+	
+	serverudp.connect("match_found", self, "_on_match_found")
+	serverudp.connect("server_ok", self, "_on_server_ok")
+	serverudp.connect("server_not_ok", self, "_on_server_not_ok")
+	
 	set_process(false)
 
 func _process(delta):
-	player_tcp_tick += delta
-	if (player_tcp_tick > 2.0):
-		if (player_tcp.is_connected_to_host()):
-			$connect/error_label.text = "Connected!"
-			print("Connected via remote!")
-		
-			if (servertcp.is_master):
-				print("This client will be master!")
-				gamestate.host_game($connect/name_label.text)
-			else:
-				print("This client will be slave!")
-				gamestate.join_game(servertcp.other_remote_address, $connect/name.text, servertcp.other_remote_port)
+	player_ping_tick += delta
+	
+	if(player_ping_tick > 1.0):
+		player_ping_tick -= 1.0
+		player_udp.put_packet("ping".to_utf8())
+	
+	if(player_udp.is_listening() and player_udp.get_available_packet_count() > 0):
+		player_udp.put_packet("ping".to_utf8()) # Last packet!
+		$connect/error_label.text = "Connected! Beginning match..."
+		player_udp.close() # open the socket for us
+		if(serverudp.is_master):
+			gamestate.host_game($connect/name.text)
 		else:
-			print("Failed, trying private IP...")
-			gamestate.join_game(servertcp.other_private_address, $connect/name.text)
+			gamestate.join_game(serverudp.other_remote_ip, $connect/name.text, serverudp.other_remote_port)
 		set_process(false)
-		player_tcp.disconnect_from_host()
 
-func _on_servertcp_finished():
-	# try stabilishing a tcp connection with other player using remote_address; if it doesnt work,
-	# players are probably in the same LAN without hairpinning
-	player_tcp.connect_to_host(servertcp.other_remote_address, servertcp.other_remote_port)
-	player_tcp_tick = 0
+func _on_match_found():
 	$connect/error_label.text = "Connecting to player..."
+	connecting_to_player = true
 	set_process(true)
+	player_udp.listen(3456)
+	player_udp.set_dest_address(serverudp.other_remote_ip, serverudp.other_remote_port)
+	player_udp.put_packet("ping".to_utf8())
+
+func _on_server_ok():
+	$connect/error_label.text = "Finding match..."
+
+func _on_server_not_ok():
+	$connect/error_label.text = "Server not ok :("
+	$connect/search.disabled = false
 
 func _on_connection_success():
-	get_node("connect").hide()
+	$connect.hide()
 
 func _on_connection_failed():
-	get_node("connect/search").disabled = false
-	get_node("connect/error_label").set_text("Connection failed.")
+	$connect/search.disabled = false
+	$connect/error_label.text = "Connection failed."
 
 func _on_game_ended():
 	show()
-	get_node("connect").show()
-	get_node("connect/search").disabled = false
+	$connect.show()
+	$connect/search.disabled = false
 
 func _on_game_error(errtxt):
-	get_node("error").text = errtxt
-	get_node("error").popup_centered_minsize()
+	$error.text = errtxt
+	$error.popup_centered_minsize()
 
 func _on_search_pressed():
-	servertcp.player_name = $connect/name_label.text
-	servertcp.start_connection()
+	$connect/error_label.text = "Connecting to server..."
+	$connect/search.disabled = true
+	
+	serverudp.player_name = $connect/name.text
+	serverudp.start_connection()
