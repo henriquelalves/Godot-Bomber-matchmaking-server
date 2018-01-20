@@ -126,16 +126,17 @@ remote func ready_to_start(id):
 		post_start_game()
 
 func host_game(name):
+	printt("Hosting:",DEFAULT_PORT)
 	player_name = name
 	var host = NetworkedMultiplayerENet.new()
-	host.create_server(DEFAULT_PORT, MAX_PEERS)
+	print(host.create_server(DEFAULT_PORT, MAX_PEERS))
 	get_tree().set_network_peer(host)
 
 func join_game(ip, name, port = DEFAULT_PORT):
-	printt(ip, name, port)
+	printt("Joining:",ip, name, port)
 	player_name = name
 	var host = NetworkedMultiplayerENet.new()
-	host.create_client(ip, port)
+	print(host.create_client(ip, port))
 	get_tree().set_network_peer(host)
 
 func get_player_list():

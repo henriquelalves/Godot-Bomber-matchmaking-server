@@ -1,7 +1,10 @@
 extends Node
 
-const SERVER_IP = '40.121.198.16' # Change this to your own Server IP
-const PORT = 3456
+const SERVER_IP = '52.178.92.96' # Change this to your own Server IP
+const PORT = 80
+
+#const SERVER_IP = "40.121.198.16"
+#const PORT = 3456
 
 onready var udp = PacketPeerUDP.new()
 onready var player_name = "Godotchan"
@@ -22,8 +25,12 @@ signal match_found
 # TO-DO: ping server constantly to not lose socket
 
 func start_connection():
-	udp.listen(PORT)
+	print("Start connection")
+	
+	udp.listen(3456)
 	udp.set_dest_address(SERVER_IP, PORT)
+	
+	print("Listening!")
 	
 	var buffer = PoolByteArray()
 	
@@ -33,11 +40,16 @@ func start_connection():
 	buffer.append_array(player_name.to_utf8())
 	udp.put_packet(buffer)
 	
+	print("First package!")
+	
 	buffer.resize(0)
 	buffer.append_array("i".to_utf8()) # private ip
 	buffer.append_array(IP.get_local_addresses()[1].to_utf8())
 	udp.put_packet(buffer)
 	
+	print("Second package!")
+	
+	print("Waiting answer")
 	var err = udp.wait() # wait for server ok
 	
 	if (err == OK):
@@ -70,6 +82,8 @@ func _process(delta):
 			if(_other_packets_received == 5):
 				udp.close()
 				emit_signal("match_found")
+				set_process(false)
+				searching_match = false
 
 func _ready():
 	set_process(true)

@@ -18,6 +18,7 @@ run/main_scene="res://lobby.tscn"
 gamestate="*res://gamestate.gd"
 servertcp="*res://servertcp.gd"
 serverudp="*res://serverudp.gd"
+serverenet="*res://serverenet.gd"
 
 [display]
 
