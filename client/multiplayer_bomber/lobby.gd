@@ -29,6 +29,7 @@ func _process(delta):
 	
 	if(player_udp.is_listening() and player_ping_tick > 0.5): # ping other player
 		player_ping_tick -= 0.5
+		print("Sending message...")
 		player_udp.put_packet(player_response.to_utf8())
 	
 	if (hosting): # is hosting
@@ -46,21 +47,19 @@ func _process(delta):
 			print("Closing socket, joining...")
 			set_process(false)
 			player_udp.close()
-			gamestate.join_game(serverudp.other_remote_ip, $connect/name.text, serverudp.other_remote_port)
+			gamestate.join_game(serverudp.other_remote_ip, $connect/name.text, serverudp.other_remote_port, 3456)
 	else:
 		if(player_udp.is_listening() and player_udp.get_available_packet_count() > 0):
 			var response = player_udp.get_packet().get_string_from_utf8()
 			print(response)
 			
 			if (response == "ping"): # trying to connect
-				player_udp.put_packet("pong".to_utf8())
 				player_response = "pong"
-			elif (response == "pong" and serverudp.is_master == 1): # i reached it!
-				player_udp.put_packet("hosting".to_utf8())
+			elif (response == "pong" and serverudp.is_master == 0): # i reached it!)
 				player_response = "hosting"
 				connecting_to_player = true
 				hosting = true
-			elif (response == "pong" and serverudp.is_master == 0):
+			elif (response == "pong" and serverudp.is_master == -1):
 				player_response = "pong"
 			elif (response == "hosting" and not joining):
 				joining = true
@@ -70,7 +69,10 @@ func _on_match_found():
 	set_process(true)
 	player_udp.listen(3456)
 	player_udp.set_dest_address(serverudp.other_remote_ip, serverudp.other_remote_port)
-	player_udp.put_packet("ping".to_utf8())
+	if(serverudp.is_master == 0):
+		print("Is master!")
+	else:
+		print("Is slave!")
 
 func _on_server_ok():
 	$connect/error_label.text = "Finding match..."
@@ -100,5 +102,5 @@ func _on_search_pressed():
 	$connect/error_label.text = "Connecting to server..."
 	$connect/search.disabled = true
 	
-#	serverudp.player_name = $connect/name.text
-	serverenet.start_connection()
+	serverudp.player_name = $connect/name.text
+	serverudp.start_connection()

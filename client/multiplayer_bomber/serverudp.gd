@@ -1,10 +1,10 @@
 extends Node
+#
+#const SERVER_IP = '52.178.92.96' # Change this to your own Server IP
+#const PORT = 80
 
-const SERVER_IP = '52.178.92.96' # Change this to your own Server IP
-const PORT = 80
-
-#const SERVER_IP = "40.121.198.16"
-#const PORT = 3456
+const SERVER_IP = "40.121.198.16"
+const PORT = 3456
 
 onready var udp = PacketPeerUDP.new()
 onready var player_name = "Godotchan"
@@ -69,7 +69,8 @@ func _process(delta):
 			var packet_string = udp.get_packet().get_string_from_utf8()
 			var type = packet_string.substr(0,2)
 			if(type == "im"): # is master
-				is_master = int(packet_string.right(2))
+				is_master = int(packet_string.right(2))-1
+				print("serverudp is_master = ", is_master)
 			if(type == "na"): # name
 				other_name = packet_string.right(2)
 			if(type == "ri"): # remote ip
