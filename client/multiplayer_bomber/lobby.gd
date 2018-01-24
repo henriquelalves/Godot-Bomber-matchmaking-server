@@ -47,7 +47,7 @@ func _process(delta):
 			print("Closing socket, joining...")
 			set_process(false)
 			player_udp.close()
-			gamestate.join_game(serverudp.other_remote_ip, $connect/name.text, serverudp.other_remote_port, 3456)
+			gamestate.join_game(serverudp.other_remote_ip, $connect/name.text, serverudp.other_remote_port)
 	else:
 		if(player_udp.is_listening() and player_udp.get_available_packet_count() > 0):
 			var response = player_udp.get_packet().get_string_from_utf8()
