@@ -1,6 +1,6 @@
 extends Node
-#
-#const SERVER_IP = '52.178.92.96' # Change this to your own Server IP
+
+#const SERVER_IP = "52.178.92.96" # Change this to your own Server IP
 #const PORT = 80
 
 const SERVER_IP = "40.121.198.16"

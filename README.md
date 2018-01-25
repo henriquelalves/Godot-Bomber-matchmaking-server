@@ -1,5 +1,5 @@
 # (WIP) Godot-Bomber-matchmaking-server
-A simple nodejs server to create matches between random players for Godot Bomber demo (PoC).
+A simple game client and nodejs server to create matches between random players for Godot Bomber demo (PoC).
 
 Inspired by Godot TCP demo made by stisa: https://github.com/stisa/godot-tcp-example.
 
@@ -28,4 +28,6 @@ Then it starts pinging the other player using another `UDPPacketPeer`, on the sa
 _PS: The original idea was to connect with the server using TCP, which is generally better (you guarantee your packets will always arrive at the server, and vice versa), but I opted to test the project using UDPPacket as it was just way simpler to program with. There are both a TCP and a UDP server version for Client and Server though, althought those implementations are possibly not complete._
 
 ## Server
-The server is a simple nodejs file - it will listens to the `:3456` port for players and just queue, waiting for other players to arrive.
+The server (**udpserver.js**) is a simple nodejs file - it will listens to the `:3456` port for players and just queue them, waiting for other players to arrive. When there is a new player and there are player(s) waiting, it will pair them up and send each the Socket information of the other. The tricky thing is that the server has to send both the Remote Socket information but the Private Socket information (the private IP the player is using); this happens because the players could be in the same LAN, which means they wouldn't be able to connect using the Router's global IP to each other (this is called Hairpin problem), so the client's should test for both (_this is not implemented on client yet, though_).
+
+_PS2: The server implemented currently only works once (lol); it will pair two players but it's currently still keeping them on the player\_queue, instead of popping them out._
