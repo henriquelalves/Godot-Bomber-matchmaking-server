@@ -8,8 +8,24 @@ The original `multiplayer bomber` demo  (available on [Godot demo repository](ht
 
 A more complete explanation can be found here: https://keithjohnston.wordpress.com/2014/02/17/nat-punch-through-for-multiplayer-games/.
 
+
+## Engine
+
+As of now, Godot 3.0 (rc3) high-level network API don't support nat-punching because you won't be able to setup a fixed client port when using `enet::create_client` (the engine will create the client Peer using an arbitrary available local port). [I made a PR](https://github.com/godotengine/godot/pull/16034) to address this problem - which means you'll need to recompile the engine to make this project work on Godot.
+
+If you only need nat-punching working on your project, you can also use the lower-level network api's (`TCPStreamPeer` or `UDPPacketPeer`) to connect different players using the technique described previously - it still works (I tested both TCP and UDP), but the game network communication will have to be setup manually.
+
 ## Client
-I used the base code of the `multiplayer bomber` demo and just updated the menu so it would connect to a Matchmaking server I created instead of using another's player IP; than it waits until the server sends back another player IP.
+I used the base code of the `multiplayer bomber` demo and just updated the menu so it would connect to a Matchmaking server I created instead of using another's player IP, via `UDPPacketPeer`; than it waits until the server sends back a "mathfound" ping, with the other player information.
+
+Then it starts pinging the other player using another `UDPPacketPeer`, on the same port used to connect with the server (`:3456`). Each player:
+- Starts sending a "ping" packet.
+- If it receives a "ping", than it means its router is now allowing the packets. It starts sending "pong".
+- If it receives a "pong", than the other player's router also allows packet transfer. Than:
+	- If it is a 'host', it will setup a 3 second timer while sending "hosting" to the other player; after that, it creates a host.
+	- If it is not a 'host', it will wait for a "hosting" message from other player to setup its own 3 second timer to create a client.
+
+_PS: The original idea was to connect with the server using TCP, which is generally better (you guarantee your packets will always arrive at the server, and vice versa), but I opted to test the project using UDPPacket as it was just way simpler to program with. There are both a TCP and a UDP server version for Client and Server though, althought those implementations are possibly not complete._
 
 ## Server
 The server is a simple nodejs file - it will listens to the `:3456` port for players and just queue, waiting for other players to arrive.
